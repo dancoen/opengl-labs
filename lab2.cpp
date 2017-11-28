@@ -300,10 +300,6 @@ void render(void) {
 	//adjust modelview
 	glMatrixMode(GL_MODELVIEW);
 
-	//This example is taken from Nehe OpenGL Tutorial Lesson # 5 (@ http://nehe.gamedev.net/) I used this code just to draw the objects               
-	// Begin drawing the color cube with 6 quads
-	// Define vertices in counter-clockwise (CCW) order with normal pointing out 
-
 	float width = 2.0;			//set desired height and width of the man's body
 	float height = 4.0;
 	walk(width, height, location);
