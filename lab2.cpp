@@ -12,18 +12,8 @@
 
 //todo: keyboard functions not working and use pointers for matrices
 
+#define PI 3.14159265
 
-//decide whether to use quaternion or euler rotation here
-bool euler = true;
-
-//enter desired coordinates and rotation here
-float points[2][3] = 
-
-//x,y,z, start and end of figure
-{{ -8, -8, -20},
- { -4, -4, -20},
-  
-};
 
  GLfloat transmat[16] =
  {
@@ -36,6 +26,7 @@ float points[2][3] =
 	 0,0,0,1
  };
 
+
  int speed = 20; //speed of animation
  double walk_speed = .05;
  double location = 0.0;
@@ -43,37 +34,11 @@ float points[2][3] =
 					 // switch leg movement (left moving forward->right moving forward)
 
 
-float xRotate[16];
-float yRotate[16];
-float zRotate[16];
-//three euler rotation matrices
+
 
 float time = 0;
 int position = 0;
 //index of orientation
-bool start = false;
-
-float basisfunc(float n) {
-	//basis function for interpolation
-	if (n <= -2 || n >= 2) return 0;
-	if (n <= -1) return (pow(n, 3.0)/6.0 + 2.0 * n + 4.0 / 3.0 + pow(n, 2.0));
-	if (n <= 0) return (2.0 / 3.0 - pow(n, 2.0) - pow(n, 3.0) / 2.0);
-	if (n <= 1) return (2.0 / 3.0 - pow(n, 2.0) + pow(n, 3.0) / 2.0);
-	if (n <= 2) return (4.0 / 3.0 - 2.0 * n + pow(n, 2.0) - pow(n, 3.0) / 6.0);
-}
-
-float bsplinefunc(float time, int idx) {	
-	//using bsplines for interpolation
-	//idx reps x,y,z cartesian of object
-	int i = 0;
-	float result = 0;
-	while (i < 6) {
-		result += points[i][idx] * basisfunc(time - (float)i);
-		i++;
-	}
-	return result;
-}
-
 //================================
 // global variables
 //================================
@@ -98,14 +63,6 @@ void init(void) {
 //================================
 void update(void) {
 	// do something before rendering...
-
-	/*if (start && time < 2) {
-		//first adjust translation matrix 
-		transmat[12] = bsplinefunc(time, 0);
-		transmat[13] = bsplinefunc(time, 1);
-		transmat[14] = bsplinefunc(time, 2);
-	}
-	*/
 	location += walk_speed;
 	if (g_angle >= 45 || g_angle <= -45) {
 		left_forward = !left_forward;
@@ -115,6 +72,188 @@ void update(void) {
 
 
 	time += .16;
+}
+
+void drawBody(double width, double height) {
+	glBegin(GL_QUADS);
+	glVertex3f(width / 2, height / 2, -width / 2);
+	glVertex3f(-width / 2, height / 2, -width / 2);
+	glVertex3f(-width / 2, height / 2, width / 2);
+	glVertex3f(width / 2, height / 2, width / 2);
+
+	// Bottom face (y = -1.0f)
+	glVertex3f(width / 2, -height / 2, width / 2);
+	glVertex3f(-width / 2, -height / 2, width / 2);
+	glVertex3f(-width / 2, -height / 2, -width / 2);
+	glVertex3f(width / 2, -height / 2, -width / 2);
+
+	// Front face  (z = 1.0f)
+
+	glVertex3f(width / 2, height / 2, width / 2);
+	glVertex3f(-width / 2, height / 2, width / 2);
+	glVertex3f(-width / 2, -height / 2, width / 2);
+	glVertex3f(width / 2, -height / 2, width / 2);
+
+	// Back face (z = -1.0f)
+	glVertex3f(width / 2, -height / 2, -width / 2);
+	glVertex3f(-width / 2, -height / 2, -width / 2);
+	glVertex3f(-width / 2, height / 2, -width / 2);
+	glVertex3f(width / 2, height / 2, -width / 2);
+
+
+	// Left face (x = -1.0f)
+
+	glVertex3f(-width / 2, height / 2, width / 2);
+	glVertex3f(-width / 2, height / 2, -width / 2);
+	glVertex3f(-width / 2, -height / 2, -width / 2);
+	glVertex3f(-width / 2, -height / 2, width / 2);
+
+	// Right face (x = 1.0f)
+
+	glVertex3f(width / 2, height / 2, -width / 2);
+	glVertex3f(width / 2, height / 2, width / 2);
+	glVertex3f(width / 2, -height / 2, width / 2);
+	glVertex3f(width / 2, -height / 2, -width / 2);
+	glEnd();
+}
+
+void drawRightLeg(double width, double height) {
+	glBegin(GL_QUADS);
+	glVertex3f(width / 2, height / 2, -width / 4);
+	glVertex3f(-width / 2, height / 2, -width / 4);
+	glVertex3f(-width / 2, height / 2, width / 4);
+	glVertex3f(width / 2, height / 2, width / 4);
+
+	// Bottom face (y = -1.0f)
+	glVertex3f(width / 2, -height / 2, width / 4);
+	glVertex3f(-width / 2, -height / 2, width / 4);
+	glVertex3f(-width / 2, -height / 2, -width / 4);
+	glVertex3f(width / 2, -height / 2, -width / 4);
+
+	// Front face  (z = 1.0f)
+
+	glVertex3f(width / 2, height / 2, width / 4);
+	glVertex3f(-width / 2, height / 2, width / 4);
+	glVertex3f(-width / 2, -height / 2, width / 4);
+	glVertex3f(width / 2, -height / 2, width / 4);
+
+	// Back face (z = -1.0f)
+	glVertex3f(width / 2, -height / 2, -width / 4);
+	glVertex3f(-width / 2, -height / 2, -width / 4);
+	glVertex3f(-width / 2, height / 2, -width / 4);
+	glVertex3f(width / 2, height / 2, -width / 4);
+
+
+	// Left face (x = -1.0f)
+
+	glVertex3f(-width / 2, height / 2, width / 4);
+	glVertex3f(-width / 2, height / 2, -width / 4);
+	glVertex3f(-width / 2, -height / 2, -width / 4);
+	glVertex3f(-width / 2, -height / 2, width / 4);
+
+	// Right face (x = 1.0f)
+
+	glVertex3f(width / 2, height / 2, -width / 4);
+	glVertex3f(width / 2, height / 2, width / 4);
+	glVertex3f(width / 2, -height / 2, width / 4);
+	glVertex3f(width / 2, -height / 2, -width / 4);
+
+	glEnd();  // End of drawing cube
+
+}
+
+void drawLeftLeg(double width, double height) {
+	glBegin(GL_QUADS);
+	glVertex3f(width / 2, height / 2, -width / 4);
+	glVertex3f(-width / 2, height / 2, -width / 4);
+	glVertex3f(-width / 2, height / 2, width / 4);
+	glVertex3f(width / 2, height / 2, width / 4);
+
+	// Bottom face (y = -1.0f)
+	glVertex3f(width / 2, -height / 2, width / 4);
+	glVertex3f(-width / 2, -height / 2, width / 4);
+	glVertex3f(-width / 2, -height / 2, -width / 4);
+	glVertex3f(width / 2, -height / 2, -width / 4);
+
+	// Front face  (z = 1.0f)
+
+	glVertex3f(width / 2, height / 2, width / 4);
+	glVertex3f(-width / 2, height / 2, width / 4);
+	glVertex3f(-width / 2, -height / 2, width / 4);
+	glVertex3f(width / 2, -height / 2, width / 4);
+
+	// Back face (z = -1.0f)
+	glVertex3f(width / 2, -height / 2, -width / 4);
+	glVertex3f(-width / 2, -height / 2, -width / 4);
+	glVertex3f(-width / 2, height / 2, -width / 4);
+	glVertex3f(width / 2, height / 2, -width / 4);
+
+
+	// Left face (x = -1.0f)
+
+	glVertex3f(-width / 2, height / 2, width / 4);
+	glVertex3f(-width / 2, height / 2, -width / 4);
+	glVertex3f(-width / 2, -height / 2, -width / 4);
+	glVertex3f(-width / 2, -height / 2, width / 4);
+
+	// Right face (x = 1.0f)
+
+	glVertex3f(width / 2, height / 2, -width / 4);
+	glVertex3f(width / 2, height / 2, width / 4);
+	glVertex3f(width / 2, -height / 2, width / 4);
+	glVertex3f(width / 2, -height / 2, -width / 4);
+
+	glEnd();  // End of drawing cube
+}
+
+void walk(double width, double height, double location) { //width and height of body for man to be drawn, and location where he should be
+
+	//translate to location and draw body
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	transmat[12] = location;
+	transmat[13] = 0;
+	transmat[14] = -20.0;
+	glMultMatrixf(transmat);
+	drawBody(width, height);	
+
+	//translate and rotate modelview, draw leftleg
+
+	glLoadIdentity();
+	transmat[12] = location;
+	transmat[14] = 0;
+	glMultMatrixf(transmat);	//translate to position
+	GLfloat leftrotatemat[16] = //rotate legs about 
+	{ cos(g_angle  * (PI/180)),-sin(g_angle  * (PI / 180)),0,0,	
+		sin(g_angle  * (PI / 180)),cos(g_angle  * (PI / 180)),0,0,
+		0,0,1,0,
+		0,0,0,1, };
+	glMultMatrixf(leftrotatemat);	//rotate the leg then translate to proper location on body
+	transmat[12] = 0;
+	transmat[13] = -height + (height / 8.0);
+	transmat[14] = -20.0 + (width / 4.0);
+	glMultMatrixf(transmat);
+	drawLeftLeg(width, height);
+
+	//translate and rotate modelview, draw rightleg
+
+	glLoadIdentity();
+	transmat[12] = location;
+	transmat[13] = 0;
+	transmat[14] = 0;
+	glMultMatrixf(transmat);
+	GLfloat rightrotatemat[16] =
+	{ cos(-g_angle  * (PI / 180)),-sin(-g_angle  * (PI / 180)),0,0,
+		sin(-g_angle  * (PI / 180)),cos(-g_angle  * (PI / 180)),0,0,
+		0,0,1,0,
+		0,0,0,1, };
+	glMultMatrixf(rightrotatemat);
+	transmat[12] = 0;
+	transmat[13] = -height + (height / 8);
+	transmat[14] = -20.0 + (width / 4);
+	glMultMatrixf(transmat);
+	drawRightLeg(width, height);
 }
 
 //================================
@@ -160,192 +299,14 @@ void render(void) {
 
 	//adjust modelview
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	// render objects
-	//glutSolidTeapot(1.0);
-	glTranslatef(location, 0.0, -20.0);
-	//glMultMatrixf(transmat);
 
-	//glRotated(15, 0.0, 1.0, 0.0);
-
-	//This example is taken from Nehe OpenGL Tutorial Lesson # 5 (@ http://nehe.gamedev.net/) I used this code just to draw the objects
-	glBegin(GL_QUADS);               
+	//This example is taken from Nehe OpenGL Tutorial Lesson # 5 (@ http://nehe.gamedev.net/) I used this code just to draw the objects               
 	// Begin drawing the color cube with 6 quads
 	// Define vertices in counter-clockwise (CCW) order with normal pointing out 
 
-	float width = 2.0;
+	float width = 2.0;			//set desired height and width of the man's body
 	float height = 4.0;
-
-	//Draw Body
-
-	//
-	//
-	//
-	//
-	//
-
-	// Top face (y = 1.0f)
-
-	glVertex3f(width/2, height/2, -width/2);
-	glVertex3f(-width/2, height/2, -width/2);
-	glVertex3f(-width/2, height/2, width/2);
-	glVertex3f(width/2, height/2, width/2);
-
-	// Bottom face (y = -1.0f)
-	glVertex3f(width/2, -height/2, width/2);
-	glVertex3f(-width/2, -height/2, width/2);
-	glVertex3f(-width/2, -height/2, -width/2);
-	glVertex3f(width/2, -height/2, -width/2);
-
-	// Front face  (z = 1.0f)
-
-	glVertex3f(width/2, height/2, width/2);
-	glVertex3f(-width/2, height/2, width/2);
-	glVertex3f(-width/2, -height/2, width/2);
-	glVertex3f(width/2, -height/2, width/2);
-
-	// Back face (z = -1.0f)
-	glVertex3f(width/2, -height/2, -width/2);
-	glVertex3f(-width/2, -height/2, -width/2);
-	glVertex3f(-width/2, height/2, -width/2);
-	glVertex3f(width/2, height/2, -width/2);
-
-
-	// Left face (x = -1.0f)
-
-	glVertex3f(-width/2, height/2, width/2);
-	glVertex3f(-width/2, height/2, -width/2);
-	glVertex3f(-width/2, -height/2, -width/2);
-	glVertex3f(-width/2, -height/2, width/2);
-
-	// Right face (x = 1.0f)
-
-	glVertex3f(width/2, height/2, -width/2);
-	glVertex3f(width/2, height/2, width/2);
-	glVertex3f(width/2, -height/2, width/2);
-	glVertex3f(width/2, -height/2, -width/2);
-	glEnd();
-
-	glLoadIdentity();
-	//glTranslatef(/*width/4*/0, -height, -20.0 - (width/4));
-
-	glTranslatef(location, 0, 0);
-	glRotated((-g_angle), 0.0, 0.0, 1.0);
-	glTranslatef(0, -height + height / 8, -20.0 + (width / 4));
-	//glMultMatrixf(transmat);
-
-	//glRotated(90, 0.0, 1.0, 0.0);
-	//Draw left Leg
-	//
-	//
-	//
-	//
-	//
-
-	// Top face (y = 1.0f)
-	glBegin(GL_QUADS);
-	glVertex3f(width / 2, height / 2, -width / 4);
-	glVertex3f(-width / 2, height / 2, -width / 4);
-	glVertex3f(-width / 2, height / 2, width / 4);
-	glVertex3f(width / 2, height / 2, width / 4);
-
-	// Bottom face (y = -1.0f)
-	glVertex3f(width / 2, -height / 2, width / 4);
-	glVertex3f(-width / 2, -height / 2, width / 4);
-	glVertex3f(-width / 2, -height / 2, -width / 4);
-	glVertex3f(width / 2, -height / 2, -width / 4);
-
-	// Front face  (z = 1.0f)
-
-	glVertex3f(width / 2, height / 2, width / 4);
-	glVertex3f(-width / 2, height / 2, width / 4);
-	glVertex3f(-width / 2, -height / 2, width / 4);
-	glVertex3f(width / 2, -height / 2, width / 4);
-
-	// Back face (z = -1.0f)
-	glVertex3f(width / 2, -height / 2, -width / 4);
-	glVertex3f(-width / 2, -height / 2, -width / 4);
-	glVertex3f(-width / 2, height / 2, -width / 4);
-	glVertex3f(width / 2, height / 2, -width / 4);
-
-
-	// Left face (x = -1.0f)
-
-	glVertex3f(-width / 2, height / 2, width / 4);
-	glVertex3f(-width / 2, height / 2, -width / 4);
-	glVertex3f(-width / 2, -height / 2, -width / 4);
-	glVertex3f(-width / 2, -height / 2, width / 4);
-
-	// Right face (x = 1.0f)
-
-	glVertex3f(width / 2, height / 2, -width / 4);
-	glVertex3f(width / 2, height / 2, width / 4);
-	glVertex3f(width / 2, -height / 2, width / 4);
-	glVertex3f(width / 2, -height / 2, -width / 4);
-
-	glEnd();  // End of drawing cube
-
-	//Draw right Leg
-	//
-	//
-	//
-	//
-	//
-	glLoadIdentity();
-	glTranslatef(location, 0, 0);
-	glRotated((g_angle), 0.0, 0.0, 1.0);
-	glTranslatef(0, -height + height / 8, -20.0 + (width / 4));
-	//glMultMatrixf(transmat);
-
-	//glTranslatef(width/2, -height + height / 4, -20.0 + (width / 4));
-	// Top face (y = 1.0f)
-	glBegin(GL_QUADS);
-	glVertex3f(width / 2, height / 2, -width / 4);
-	glVertex3f(-width / 2, height / 2, -width / 4);
-	glVertex3f(-width / 2, height / 2, width / 4);
-	glVertex3f(width / 2, height / 2, width / 4);
-
-	// Bottom face (y = -1.0f)
-	glVertex3f(width / 2, -height / 2, width / 4);
-	glVertex3f(-width / 2, -height / 2, width / 4);
-	glVertex3f(-width / 2, -height / 2, -width / 4);
-	glVertex3f(width / 2, -height / 2, -width / 4);
-
-	// Front face  (z = 1.0f)
-
-	glVertex3f(width / 2, height / 2, width / 4);
-	glVertex3f(-width / 2, height / 2, width / 4);
-	glVertex3f(-width / 2, -height / 2, width / 4);
-	glVertex3f(width / 2, -height / 2, width / 4);
-
-	// Back face (z = -1.0f)
-	glVertex3f(width / 2, -height / 2, -width / 4);
-	glVertex3f(-width / 2, -height / 2, -width / 4);
-	glVertex3f(-width / 2, height / 2, -width / 4);
-	glVertex3f(width / 2, height / 2, -width / 4);
-
-
-	// Left face (x = -1.0f)
-
-	glVertex3f(-width / 2, height / 2, width / 4);
-	glVertex3f(-width / 2, height / 2, -width / 4);
-	glVertex3f(-width / 2, -height / 2, -width / 4);
-	glVertex3f(-width / 2, -height / 2, width / 4);
-
-	// Right face (x = 1.0f)
-
-	glVertex3f(width / 2, height / 2, -width / 4);
-	glVertex3f(width / 2, height / 2, width / 4);
-	glVertex3f(width / 2, -height / 2, width / 4);
-	glVertex3f(width / 2, -height / 2, -width / 4);
-
-	glEnd();  // End of drawing cube
-
-	//gl
-
-	//glRectd(2,30,4,5);
-
-
+	walk(width, height, location);
 	// disable lighting
 	glDisable(GL_LIGHT0);
 	glDisable(GL_LIGHTING);
@@ -362,7 +323,6 @@ void keyboard(unsigned char key, int x, int y) {
 		//case 'e': euler = true;
 		//case 'q': euler = false;
 	}
-	start = true;
 }
 
 //================================
@@ -398,7 +358,7 @@ void timer(int value) {
 
 	// reset timer
 	// 16 ms per frame ( about 60 frames per second )
-	glutTimerFunc(60/*16*/, timer, 0);
+	glutTimerFunc(32, timer, 0);
 }
 
 //================================
